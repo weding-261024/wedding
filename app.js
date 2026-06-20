@@ -139,6 +139,7 @@ document.addEventListener("DOMContentLoaded", function() {
         initClipboard();
         initAccordion();
         initGuestbook();
+        initRsvp();
         initEditor();
         initProtection();
     });
@@ -559,27 +560,57 @@ function initAccordion() {
     });
 }
 
-// 9. Guestbook
+// ===== 서버 연동 설정 =====
+// Apps Script 배포 후 받은 웹 앱 URL을 여기에 붙여넣으세요.
+// 예: const API_URL = "https://script.google.com/macros/s/AKfycb..../exec";
+const API_URL = "여기에_APPS_SCRIPT_웹앱_URL_붙여넣기";
+
+// 공용 escapeHtml (방명록/RSVP 양쪽에서 사용)
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+// 서버로 데이터 전송 (no-cors: 응답 본문은 못 읽지만 저장은 됨)
+function postToServer(payload) {
+    return fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    });
+}
+
+// 9. Guestbook (Google Spreadsheet 연동)
 function initGuestbook() {
     const form = document.getElementById('guestbook-form');
     const nameInput = document.getElementById('guestbook-name');
     const passwordInput = document.getElementById('guestbook-password');
     const messageInput = document.getElementById('guestbook-message');
     const listContainer = document.getElementById('guestbook-list');
-    
-    const STORAGE_KEY = 'wedding_guestbook_messages_v3';
-    let messages = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    
-    function renderMessages() {
+    const submitBtn = document.getElementById('guestbook-submit-btn');
+
+    // 서버에서 방명록 목록 불러오기
+    async function loadMessages() {
+        listContainer.innerHTML = '<div style="text-align:center; color:#888; font-size:0.85rem; padding: 1.5rem 0;">불러오는 중...</div>';
+        try {
+            const res = await fetch(API_URL + '?type=guestbook&t=' + Date.now());
+            const data = await res.json();
+            renderMessages(data);
+        } catch (e) {
+            console.error('방명록 로드 실패:', e);
+            listContainer.innerHTML = '<div style="text-align:center; color:#c0392b; font-size:0.85rem; padding: 1.5rem 0;">방명록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</div>';
+        }
+    }
+
+    function renderMessages(messages) {
         listContainer.innerHTML = '';
-        
-        if (messages.length === 0) {
+        if (!messages || messages.length === 0) {
             listContainer.innerHTML = '<div style="text-align:center; color:#888; font-size:0.85rem; padding: 1.5rem 0;">첫 축하 한마디를 남겨보세요!</div>';
             return;
         }
-        
+        // 최신순 정렬 (id = 타임스탬프)
         const sorted = [...messages].sort((a, b) => b.id - a.id);
-        
         sorted.forEach(msg => {
             const card = document.createElement('div');
             card.className = 'message-card';
@@ -587,7 +618,7 @@ function initGuestbook() {
                 <div class="message-header">
                     <span class="message-author">${escapeHtml(msg.name)}</span>
                     <div class="message-meta">
-                        <span class="message-date">${msg.date}</span>
+                        <span class="message-date">${escapeHtml(msg.date)}</span>
                         <button class="delete-btn" data-id="${msg.id}">삭제</button>
                     </div>
                 </div>
@@ -595,74 +626,126 @@ function initGuestbook() {
             `;
             listContainer.appendChild(card);
         });
-        
+
         listContainer.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const idToDelete = parseInt(this.getAttribute('data-id'), 10);
-                deleteMessage(idToDelete);
+                deleteMessage(this.getAttribute('data-id'));
             });
         });
     }
-    
-    function deleteMessage(id) {
-        const targetMsg = messages.find(m => m.id === id);
-        if (!targetMsg) return;
-        
+
+    async function deleteMessage(id) {
         const pwd = prompt("메시지 삭제를 위한 비밀번호를 입력해주세요:");
         if (pwd === null) return;
-        
-        if (pwd === targetMsg.password) {
-            messages = messages.filter(m => m.id !== id);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-            renderMessages();
-            alert("메시지가 성공적으로 삭제되었습니다.");
-        } else {
-            alert("비밀번호가 올바르지 않습니다.");
+        try {
+            await postToServer({ type: 'guestbook_delete', id: id, password: pwd });
+            alert("삭제 요청이 처리되었습니다. 잠시 후 목록이 갱신됩니다.");
+            setTimeout(loadMessages, 1200);
+        } catch (e) {
+            alert("삭제 처리 중 오류가 발생했습니다.");
         }
     }
-    
-    form.addEventListener('submit', function(e) {
+
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
         const name = nameInput.value.trim();
         const password = passwordInput.value.trim();
         const message = messageInput.value.trim();
-        
         if (!name || !password || !message) return;
-        
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = '등록 중...';
+
         const now = new Date();
         const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
-        
-        const newMsg = {
-            id: Date.now(),
-            name,
-            password,
-            message,
-            date: dateStr
-        };
-        
-        messages.push(newMsg);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-        
-        nameInput.value = '';
-        passwordInput.value = '';
-        messageInput.value = '';
-        
-        renderMessages();
+
+        try {
+            await postToServer({
+                type: 'guestbook',
+                id: Date.now(),
+                name, password, message, date: dateStr
+            });
+            nameInput.value = '';
+            passwordInput.value = '';
+            messageInput.value = '';
+            // 서버 기록 후 약간의 지연을 두고 새로고침
+            setTimeout(loadMessages, 1200);
+        } catch (err) {
+            alert("등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '축하 메시지 등록';
+        }
     });
-    
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-    }
-    
-    renderMessages();
+
+    loadMessages();
+}
+
+// 9-2. RSVP (참석 여부 + 인원수)
+function initRsvp() {
+    const form = document.getElementById('rsvp-form');
+    if (!form) return;
+
+    const nameInput = document.getElementById('rsvp-name');
+    const sideInputs = form.querySelectorAll('input[name="rsvp-side"]');
+    const attendInputs = form.querySelectorAll('input[name="rsvp-attend"]');
+    const countInput = document.getElementById('rsvp-count');
+    const submitBtn = document.getElementById('rsvp-submit-btn');
+    const statusEl = document.getElementById('rsvp-status');
+    const countRow = document.getElementById('rsvp-count-row');
+
+    // 불참 선택 시 인원수 입력 숨김
+    attendInputs.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'N') {
+                countRow.style.display = 'none';
+            } else {
+                countRow.style.display = '';
+            }
+        });
+    });
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const name = nameInput.value.trim();
+        const side = [...sideInputs].find(r => r.checked)?.value || '';
+        const attend = [...attendInputs].find(r => r.checked)?.value || '';
+        const count = (attend === 'N') ? 0 : (parseInt(countInput.value, 10) || 1);
+
+        if (!name || !side || !attend) {
+            statusEl.textContent = '이름, 측, 참석 여부를 모두 선택해주세요.';
+            statusEl.style.color = '#c0392b';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = '전달 중...';
+        statusEl.textContent = '';
+
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+
+        try {
+            await postToServer({
+                type: 'rsvp',
+                id: Date.now(),
+                name,
+                side: side === 'groom' ? '신랑측' : '신부측',
+                attend: attend === 'Y' ? '참석' : '불참',
+                count, date: dateStr
+            });
+            statusEl.textContent = '참석 정보가 전달되었습니다. 감사합니다!';
+            statusEl.style.color = '#2e7d32';
+            form.reset();
+            countRow.style.display = '';
+        } catch (err) {
+            statusEl.textContent = '전달 중 오류가 발생했습니다. 다시 시도해주세요.';
+            statusEl.style.color = '#c0392b';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '참석 정보 전달하기';
+        }
+    });
 }
 
 // 10. Editor Panel Customization
