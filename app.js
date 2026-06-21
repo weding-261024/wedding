@@ -447,17 +447,33 @@ function initLightbox(imagesList) {
     const nextBtn = document.getElementById('lightbox-next');
     
     let currentIndex = 0;
-    
+    let autoTimer = null;
+
+    // 자동 넘김(슬라이드쇼) 제어
+    function stopAutoPlay() {
+        if (autoTimer) {
+            clearInterval(autoTimer);
+            autoTimer = null;
+        }
+    }
+
+    function startAutoPlay() {
+        stopAutoPlay();
+        autoTimer = setInterval(showNext, 3000); // 3초마다 다음 사진
+    }
+
     function openLightbox(index) {
         currentIndex = index;
         lightboxImg.src = imagesList[currentIndex];
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
+        startAutoPlay(); // 클릭으로 열면 3초 뒤부터 자동으로 다음 사진
     }
-    
+
     function closeLightbox() {
         lightbox.classList.remove('active');
         document.body.style.overflow = '';
+        stopAutoPlay();
     }
     
     function showNext() {
@@ -496,20 +512,21 @@ function initLightbox(imagesList) {
     }
     
     closeBtn.onclick = closeLightbox;
-    nextBtn.onclick = showNext;
-    prevBtn.onclick = showPrev;
-    
+    // 수동으로 넘기면 타이머를 다시 시작(직후 바로 넘어가지 않도록)
+    nextBtn.onclick = function() { showNext(); startAutoPlay(); };
+    prevBtn.onclick = function() { showPrev(); startAutoPlay(); };
+
     lightbox.onclick = function(e) {
         if (e.target === lightbox || e.target.classList.contains('lightbox-img-container')) {
             closeLightbox();
         }
     };
-    
+
     document.onkeydown = function(e) {
         if (!lightbox.classList.contains('active')) return;
         if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowRight') showNext();
-        if (e.key === 'ArrowLeft') showPrev();
+        if (e.key === 'ArrowRight') { showNext(); startAutoPlay(); }
+        if (e.key === 'ArrowLeft') { showPrev(); startAutoPlay(); }
     };
 }
 
