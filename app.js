@@ -162,7 +162,7 @@ function loadConfiguration() {
     
     // Load images asynchronously from IndexedDB
     dbStore.get('custom_hero_img', (heroBase64) => {
-        const heroImg = heroBase64 || "images/wedding_hero.png";
+        const heroImg = heroBase64 || "images/gallery_04.jpg";
         document.getElementById('hero-wedding-img').src = heroImg;
         
         dbStore.get('custom_gallery_images', (galleryArray) => {
@@ -174,17 +174,41 @@ function loadConfiguration() {
 }
 
 function generateDefaultGalleryArray() {
-    const defaults = [
-        "images/wedding_hero.png",
-        "images/wedding_gallery_1.png",
-        "images/wedding_gallery_2.png"
+    return [
+        "images/gallery_01.jpg",
+        "images/gallery_02.png",
+        "images/gallery_03.png",
+        "images/gallery_04.jpg",
+        "images/gallery_05.jpg",
+        "images/gallery_06.jpg",
+        "images/gallery_07.jpg",
+        "images/gallery_08.jpg",
+        "images/gallery_09.jpg",
+        "images/gallery_10.jpg",
+        "images/gallery_11.jpg",
+        "images/gallery_12.jpg",
+        "images/gallery_13.jpg",
+        "images/gallery_14.jpg",
+        "images/gallery_15.jpg",
+        "images/gallery_16.jpg",
+        "images/gallery_17.jpg",
+        "images/gallery_18.jpg",
+        "images/gallery_19.jpg",
+        "images/gallery_20.jpg",
+        "images/gallery_21.jpg",
+        "images/gallery_22.jpg",
+        "images/gallery_23.jpg",
+        "images/gallery_24.jpg",
+        "images/gallery_25.jpg",
+        "images/gallery_26.jpg",
+        "images/gallery_27.jpg",
+        "images/gallery_28.jpg",
+        "images/gallery_29.jpg",
+        "images/gallery_30.jpg",
+        "images/gallery_31.jpg",
+        "images/gallery_32.jpg",
+        "images/gallery_33.jpg"
     ];
-    const list = [];
-    // Repeat default images to show a beautiful 30-image list dynamically
-    for (let i = 0; i < 30; i++) {
-        list.push(defaults[i % defaults.length]);
-    }
-    return list;
 }
 
 function applyConfigToDOM(heroImg, galleryList) {
@@ -503,7 +527,7 @@ function initLightbox(imagesList) {
         newHeroOverlay.addEventListener('click', function() {
             // Hero expands inside lightbox with hero source
             dbStore.get('custom_hero_img', (heroBase64) => {
-                const src = heroBase64 || "images/wedding_hero.png";
+                const src = heroBase64 || "images/gallery_04.jpg";
                 openLightbox(0); // Opens lightbox at index 0 (using current imagesList)
                 // Temp override source for hero
                 lightboxImg.src = src;
@@ -848,7 +872,7 @@ function initEditor() {
                 previewHeroImg.src = heroBase64;
                 tempUploadedImages.heroImg = heroBase64;
             } else {
-                previewHeroImg.src = "images/wedding_hero.png";
+                previewHeroImg.src = "images/gallery_04.jpg";
             }
             
             dbStore.get('custom_gallery_images', (galleryArray) => {
@@ -1063,7 +1087,7 @@ function initEditor() {
         
         Promise.all(savePromises).then(() => {
             // Re-render and apply changes
-            const heroSrc = tempUploadedImages.heroImg || "images/wedding_hero.png";
+            const heroSrc = tempUploadedImages.heroImg || "images/gallery_04.jpg";
             document.getElementById('hero-wedding-img').src = heroSrc;
             
             const list = (tempUploadedImages.gallery && tempUploadedImages.gallery.length > 0) ? tempUploadedImages.gallery : generateDefaultGalleryArray();
