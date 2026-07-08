@@ -1,15 +1,15 @@
 /* --- Reset & Global Variables --- */
 :root {
     --bg-color: #FFFFFF;         /* Pure White */
-    --bg-soft: #F9F8FA;          /* Milk Lavender White */
-    --lavender-light: #F3EEF8;   /* Very Light Lavender tint */
-    --lavender-medium: #DCD0EC;  /* Pastel Lavender Accent */
-    --lavender-dark: #8E75A9;    /* Deep Lavender */
-    --lavender-hover: #7B6296;   /* Darker Lavender for Hovers */
-    --text-dark: #2C2633;        /* Deep Charcoal Purple */
-    --text-muted: #786E83;       /* Muted Grey-Purple */
-    --border-color: #EAE6EF;     /* Delicate Lavender borders */
-    --shadow-color: rgba(142, 117, 169, 0.08);
+    --bg-soft: #FFFDEA;          /* Pale Yellow Ivory */
+    --lavender-light: #FEF7C8;   /* Very Light Yellow tint */
+    --lavender-medium: #F7D91F;  /* Bright Yellow Accent */
+    --lavender-dark: #CF9F00;    /* Deep Golden Yellow (legible text accent) */
+    --lavender-hover: #B08600;   /* Darker Yellow for Hovers */
+    --text-dark: #3A3410;        /* Warm Dark */
+    --text-muted: #7E7238;       /* Muted Warm Yellow-Grey */
+    --border-color: #F1E7A6;     /* Delicate Yellow borders */
+    --shadow-color: rgba(224, 178, 0, 0.10);
     
     --font-eng: 'Cinzel', serif;
     --font-serif: 'Noto Serif KR', serif;
@@ -33,7 +33,7 @@ img {
 }
 
 body {
-    background-color: #ECEAF0; /* Light pastel grey-purple outer background */
+    background-color: #EDE7C8; /* Light warm yellow-grey outer background */
     font-family: var(--font-serif);
     color: var(--text-dark);
     line-height: 1.8;
@@ -51,7 +51,7 @@ body {
     width: 100%;
     max-width: 480px;
     background-color: var(--bg-color);
-    box-shadow: 0 10px 40px rgba(142, 117, 169, 0.12);
+    box-shadow: 0 10px 40px rgba(224, 178, 0, 0.12);
     position: relative;
     overflow-x: hidden;
     min-height: 100vh;
@@ -96,14 +96,14 @@ body {
     overflow: hidden;
     flex-shrink: 0;
     border: 3px solid #fff;
-    box-shadow: 0 6px 18px rgba(142, 117, 169, 0.25);
+    box-shadow: 0 6px 18px rgba(224, 178, 0, 0.25);
 }
 
 /* 가운데 사진을 살짝 키워 리듬감을 준다 */
 .greeting-badge:nth-child(2) {
     width: 31vw;
     max-width: 112px;
-    box-shadow: 0 8px 22px rgba(142, 117, 169, 0.3);
+    box-shadow: 0 8px 22px rgba(224, 178, 0, 0.3);
 }
 
 .greeting-badge-img {
@@ -296,7 +296,7 @@ body {
 
 .relation {
     font-size: 0.85rem;
-    color: #887e93;
+    color: #9c8f5a;
     margin: 0 0.8rem;
 }
 
@@ -385,7 +385,7 @@ body {
     background-color: var(--lavender-dark);
     border-radius: 50%;
     z-index: -1;
-    box-shadow: 0 2px 8px rgba(142, 117, 169, 0.4);
+    box-shadow: 0 2px 8px rgba(224, 178, 0, 0.4);
     animation: softPulse 2s infinite;
 }
 
@@ -461,7 +461,7 @@ body {
     overflow: hidden;
     aspect-ratio: 1 / 1;
     background-color: var(--lavender-light);
-    box-shadow: 0 2px 8px rgba(142, 117, 169, 0.04);
+    box-shadow: 0 2px 8px rgba(224, 178, 0, 0.04);
 }
 
 .gallery-item.first-main-span {
@@ -601,7 +601,7 @@ body {
     padding: 0.3rem 0.7rem;
     border-radius: 4px;
     margin-top: 0.3rem;
-    box-shadow: 0 4px 10px rgba(142, 117, 169, 0.25);
+    box-shadow: 0 4px 10px rgba(224, 178, 0, 0.25);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -1084,7 +1084,7 @@ body {
     color: #FFF;
     border: none;
     border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(142, 117, 169, 0.4);
+    box-shadow: 0 4px 15px rgba(224, 178, 0, 0.4);
     cursor: pointer;
     z-index: 999;
     display: flex;
@@ -1170,7 +1170,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.2rem;
-    box-shadow: 0 2px 6px rgba(142, 117, 169, 0.02);
+    box-shadow: 0 2px 6px rgba(224, 178, 0, 0.02);
 }
 
 .edit-section-title {
@@ -1645,4 +1645,29 @@ body {
     background-color: var(--lavender-light);
     color: var(--lavender-dark);
     border-color: var(--lavender-medium, #d9cef0);
+}
+
+/* === Bright Yellow theme: dark text on bright-yellow fills for readability === */
+.submit-btn,
+.panel-btn.save,
+.edit-toggle-btn {
+    background-color: #F7D91F;
+    color: var(--text-dark) !important;
+    font-weight: 600;
+}
+.submit-btn:hover,
+.panel-btn.save:hover,
+.edit-toggle-btn:hover {
+    background-color: #ECC900;
+}
+.copy-btn:hover {
+    background-color: #F7D91F;
+    color: var(--text-dark);
+}
+.calendar-table td.wedding-day {
+    color: var(--text-dark) !important;
+    font-weight: 700;
+}
+.calendar-table td.wedding-day::before {
+    background-color: #F7D91F;
 }
