@@ -174,10 +174,8 @@ function loadConfiguration() {
 }
 
 function generateDefaultGalleryArray() {
+    // gallery_01~03은 인사말 섹션의 원형 대표 사진 뱃지로 사용하므로 그리드에서는 제외
     return [
-        "images/gallery_01.jpg",
-        "images/gallery_02.png",
-        "images/gallery_03.png",
         "images/gallery_04.jpg",
         "images/gallery_05.jpg",
         "images/gallery_06.jpg",
