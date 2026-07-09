@@ -235,8 +235,11 @@ function applyConfigToDOM(heroImg, galleryList) {
     document.getElementById('txt-wedding-venue-meta').innerText = currentConfig.venueName;
     
     // Greetings
-    document.getElementById('txt-greeting-title').innerText = currentConfig.greetingTitle;
-    document.getElementById('txt-greeting-content').innerHTML = currentConfig.greetingContent.replace(/\n/g, '<br>');
+    // 인사말 제목/본문은 정적 텍스트(성경구절+혼배안내)로 대체되어 요소가 없을 수 있음 → null 가드
+    const greetingTitleEl = document.getElementById('txt-greeting-title');
+    if (greetingTitleEl) greetingTitleEl.innerText = currentConfig.greetingTitle;
+    const greetingContentEl = document.getElementById('txt-greeting-content');
+    if (greetingContentEl) greetingContentEl.innerHTML = currentConfig.greetingContent.replace(/\n/g, '<br>');
     document.getElementById('txt-groom-parents').innerText = currentConfig.groomParents;
     document.getElementById('txt-groom-name').innerText = currentConfig.groomName;
     document.getElementById('txt-bride-parents').innerText = currentConfig.brideParents;

@@ -514,8 +514,12 @@ body {
 }
 
 /* --- 예식 안내 (성경 구절 + 혼배 성사 안내) --- */
-.ceremony-note {
+.greeting-sub-label {
     margin-top: 3rem;
+}
+
+.ceremony-note {
+    margin-top: 0.6rem;
 }
 
 .scripture-quote {
