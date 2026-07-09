@@ -177,7 +177,6 @@ function generateDefaultGalleryArray() {
     // gallery_01~03은 인사말 섹션의 원형 대표 사진 뱃지로 사용하므로 그리드에서는 제외
     return [
         "images/gallery_04.jpg",
-        "images/gallery_05.jpg",
         "images/gallery_06.jpg",
         "images/gallery_07.jpg",
         "images/gallery_08.jpg",
@@ -190,7 +189,6 @@ function generateDefaultGalleryArray() {
         "images/gallery_15.jpg",
         "images/gallery_16.jpg",
         "images/gallery_17.jpg",
-        "images/gallery_18.jpg",
         "images/gallery_19.jpg",
         "images/gallery_20.jpg",
         "images/gallery_21.jpg",
@@ -202,7 +200,6 @@ function generateDefaultGalleryArray() {
         "images/gallery_29.jpg",
         "images/gallery_30.jpg",
         "images/gallery_31.jpg",
-        "images/gallery_32.jpg",
         "images/gallery_33.jpg"
     ];
 }
